@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Car Corals | Logistics</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0f172a; --accent: #3b82f6; --bg: #f1f5f9; --card: #ffffff;
+            --border: #e2e8f0; --text: #1e293b; --muted: #64748b; --emerald: #10b981; --rose: #f43f5e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            line-height: 1.5; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        header { 
+            background-color: var(--primary); 
+            color: white; 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            padding-bottom: 15px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+        }
+
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 12px; }
+        
+        .top-nav { display: flex; justify-content: space-between; align-items: center; height: 70px; }
+        
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon { 
+            background: var(--accent); 
+            width: 42px; height: 42px; 
+            border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; 
+        }
+        
+        .brand-text h1 { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; line-height: 1; }
+        .brand-text span { color: var(--accent); }
+        .role-badge { font-size: 10px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-top: 4px; display: block; }
+
+        /* HEADER CONTROLS - FORCED SINGLE LINE */
+        .controls-row { display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; }
+        .search-container { flex: 1; min-width: 0; }
+        .search-container input { 
+            width: 100%; height: 44px; padding: 0 12px; 
+            background: rgba(255,255,255,0.08); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 12px; color: white; outline: none; font-size: 14px; 
+        }
+        .filter-select { 
+            height: 44px; background: rgba(255,255,255,0.08); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: white; padding: 0 8px; border-radius: 12px; 
+            font-size: 13px; font-weight: 600; cursor: pointer; outline: none; 
+            min-width: 85px; max-width: 100px; 
+        }
+        .btn-icon-add { 
+            min-width: 44px; max-width: 44px; height: 44px; 
+            background: var(--emerald); color: white; border: none; 
+            border-radius: 12px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; flex-shrink: 0; 
+        }
+
+        .user-btn { 
+            background: rgba(255,255,255,0.1); 
+            border: none; color: white; width: 42px; height: 42px; 
+            border-radius: 12px; cursor: pointer; 
+        }
+
+        #dropdown-menu { 
+            position: absolute; right: 15px; top: 65px; 
+            background: white; border-radius: 16px; width: 200px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: none; 
+            z-index: 1001; border: 1px solid var(--border); overflow: hidden; 
+        }
+        
+        .menu-link { 
+            width: 100%; padding: 14px 18px; border: none; background: none; 
+            text-align: left; font-size: 14px; font-weight: 600; color: var(--text); 
+            display: flex; align-items: center; gap: 12px; cursor: pointer; 
+        }
+
+        /* MAIN LAYOUT FIXES */
+        main { max-width: 1200px; margin: 0 auto; padding: 20px 12px; }
+        .group-block { margin-bottom: 35px; }
+
+        /* FORCED ROW FOR HEADERS */
+        .group-header { 
+            display: flex; flex-direction: row; justify-content: space-between; 
+            align-items: center; padding: 0 5px 12px 5px; 
+            border-bottom: 2px solid var(--border); margin-bottom: 18px; 
+        }
+        .group-header h2 { font-size: 13px; text-transform: uppercase; font-weight: 800; color: var(--muted); }
+
+        .responsive-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 16px; 
+        }
+
+        /* FORCED ROW FOR CARD HEADS */
+        .inventory-card { background: white; border: 1px solid var(--border); border-radius: 18px; overflow: hidden; }
+        .card-head { 
+            background: #f8fafc; padding: 12px 18px; 
+            display: flex; flex-direction: row; justify-content: space-between; 
+            align-items: center; border-bottom: 1px solid var(--border); 
+        }
+        .card-head h4 { font-size: 13px; font-weight: 800; color: var(--primary); }
+
+        /* FORCED ROW FOR ITEMS */
+        .item-row { 
+            display: flex; flex-direction: row; justify-content: space-between; 
+            align-items: center; padding: 12px 18px; border-bottom: 1px solid #f8fafc; 
+        }
+
+        .action-btns { 
+            display: flex; flex-direction: row; align-items: center; 
+            gap: 8px; flex-shrink: 0; 
+        }
+
+        .qty-stepper { 
+            display: flex; align-items: center; gap: 8px; 
+            background: #f1f5f9; padding: 4px 8px; border-radius: 10px; 
+        }
+        .qty-stepper button { 
+            border: none; background: white; width: 24px; height: 24px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold; 
+        }
+
+        #modal-backdrop { 
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(5px); display: none; align-items: center; 
+            justify-content: center; z-index: 2000; padding: 15px; 
+        }
+        .modal-card { background: white; width: 100%; max-width: 400px; border-radius: 24px; padding: 25px; }
+        .modal-card input { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; }
+        .save-btn { width: 100%; padding: 15px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; }
+        
+        .hidden { display: none !important; }
+        .icon-btn { border: none; background: none; cursor: pointer; color: var(--muted); display: flex; align-items: center; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-container">
+        <div class="top-nav">
+            <div class="brand">
+                <div class="brand-icon"><i data-lucide="package"></i></div>
+                <div class="brand-text">
+                    <h1>Car <span>Corals</span></h1>
+                    <span id="access-label" class="role-badge">Staff Access</span>
+                </div>
+            </div>
+            <div style="position: relative;">
+                <button class="user-btn" onclick="toggleMenu(event)"><i data-lucide="user"></i></button>
+                <div id="dropdown-menu">
+                    <button id="login-nav" class="menu-link" onclick="triggerAuth()"><i data-lucide="lock"></i> Admin Login</button>
+                    <button id="logout-nav" class="menu-link hidden" onclick="doLogout()"><i data-lucide="log-out" style="color:var(--rose)"></i> Logout</button>
+                </div>
+            </div>
+        </div>
+        <div class="controls-row">
+            <div class="search-container"><input id="main-search" placeholder="Search models..." oninput="rebuildUI()"></div>
+            <select id="main-filter" class="filter-select" onchange="rebuildUI()"><option value="All">Groups</option></select>
+            <button id="add-group-trigger" class="btn-icon-add hidden" onclick="spawnGroupModal()"><i data-lucide="plus"></i></button>
+        </div>
+    </div>
+</header>
+
+<main id="view-port"></main>
+
+<div id="modal-backdrop">
+    <div class="modal-card">
+        <h3 id="m-title" style="margin-bottom: 20px;"></h3>
+        <div id="m-body"></div>
+        <button onclick="killModal()" style="margin-top: 15px; background: none; border: none; color: var(--muted); cursor: pointer; width: 100%;">Cancel</button>
+    </div>
+</div>
+
+<script>
+    let DATA = [];
+    let IS_ADMIN = localStorage.getItem('cc_auth_v3') === 'true';
+    const SECRET = { u: "carcorals@me", p: "admin@car" };
+
+    async function fetchData() {
+        const res = await fetch('/api/data');
+        DATA = await res.json();
+        syncUI();
+    }
+
+    async function sendCommand(url, body) {
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        fetchData();
+    }
+
+    function triggerAuth() {
+        spawnModal("Admin Login", `
+            <input id="log-u" type="email" placeholder="Email">
+            <input id="log-p" type="password" placeholder="Password">
+            <button class="save-btn" onclick="verifyLogin()">Login</button>
+        `);
+    }
+
+    function verifyLogin() {
+        if(document.getElementById('log-u').value === SECRET.u && document.getElementById('log-p').value === SECRET.p) {
+            IS_ADMIN = true; localStorage.setItem('cc_auth_v3', 'true'); killModal(); syncUI();
+        } else { alert("Error"); }
+    }
+
+    function doLogout() { IS_ADMIN = false; localStorage.removeItem('cc_auth_v3'); syncUI(); }
+
+    function saveGroup(id = null) {
+        const val = document.getElementById('g-name').value;
+        if(val) sendCommand('/api/group', { name: val, id: id });
+        killModal();
+    }
+
+    function saveModel(gid, mid = null) {
+        const val = document.getElementById('m-name').value;
+        if(val) sendCommand('/api/model', { name: val, group_id: gid, id: mid });
+        killModal();
+    }
+
+    function saveItem(mid, itemId = null) {
+        const n = document.getElementById('i-name').value;
+        const q = parseInt(document.getElementById('i-qty').value) || 0;
+        const m = parseInt(document.getElementById('i-min').value) || 0;
+        sendCommand('/api/item', { id: itemId, name: n, qty: q, min: m, model_id: mid });
+        killModal();
+    }
+
+    function adjust(mid, name, adj) { sendCommand('/api/item/adjust', { mid, name, adj }); }
+
+    async function remove(type, id) {
+        if(confirm("Delete?")) {
+            await fetch(`/api/delete/${type}/${id}`, { method: 'DELETE' });
+            fetchData();
+        }
+    }
+
+    function toggleMenu(e) { e.stopPropagation(); const m = document.getElementById('dropdown-menu'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
+    window.onclick = () => document.getElementById('dropdown-menu').style.display = 'none';
+    function spawnModal(title, content) { document.getElementById('m-title').innerText = title; document.getElementById('m-body').innerHTML = content; document.getElementById('modal-backdrop').style.display = 'flex'; }
+    function killModal() { document.getElementById('modal-backdrop').style.display = 'none'; }
+    
+    function spawnGroupModal(id = null, name = '') { 
+        spawnModal(id ? "Edit Group" : "Add Group", `<input id="g-name" value="${name}" placeholder="Name"><button class="save-btn" onclick="saveGroup(${id})">Save</button>`); 
+    }
+    function spawnModelModal(gid, mid = null, name = '') { 
+        spawnModal(mid ? "Edit Car" : "Add Car", `<input id="m-name" value="${name}" placeholder="Model Name"><button class="save-btn" onclick="saveModel(${gid}, ${mid})">Save</button>`); 
+    }
+    function spawnItemModal(mid, itemId = null, iName = '', iQty = '', iMin = '') { 
+        spawnModal(itemId ? "Edit Item" : "Add Item", `
+            <input id="i-name" value="${iName}" placeholder="Brand/Part Name">
+            <input id="i-qty" type="number" value="${iQty}" placeholder="Qty">
+            <input id="i-min" type="number" value="${iMin}" placeholder="Min Alert">
+            <button class="save-btn" onclick="saveItem(${mid}, ${itemId})">Save</button>
+        `); 
+    }
+
+    function syncUI() {
+        document.getElementById('access-label').innerText = IS_ADMIN ? "System Manager" : "Staff Access";
+        document.getElementById('login-nav').classList.toggle('hidden', IS_ADMIN);
+        document.getElementById('logout-nav').classList.toggle('hidden', !IS_ADMIN);
+        document.getElementById('add-group-trigger').classList.toggle('hidden', !IS_ADMIN);
+        const f = document.getElementById('main-filter');
+        const act = f.value;
+        f.innerHTML = '<option value="All">Groups</option>';
+        DATA.forEach(g => f.innerHTML += `<option value="${g.id}">${g.name}</option>`);
+        f.value = act;
+        rebuildUI();
+    }
+
+    function rebuildUI() {
+        const port = document.getElementById('view-port');
+        const search = document.getElementById('main-search').value.toLowerCase();
+        const filter = document.getElementById('main-filter').value;
+        port.innerHTML = "";
+
+        DATA.filter(g => filter === "All" || g.id == filter).forEach(grp => {
+            let modelsHtml = grp.models.map(mod => {
+                if(search && !mod.name.toLowerCase().includes(search)) return "";
+                let itemsHtml = mod.items.map(i => {
+                    const low = i.qty <= i.min;
+                    return `
+                        <div class="item-row">
+                            <span style="font-size:13px; font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px;">${i.name}</span>
+                            <div class="action-btns">
+                                ${IS_ADMIN ? `
+                                    <button class="icon-btn" onclick="spawnItemModal(${mod.id}, ${i.id}, '${i.name}', ${i.qty}, ${i.min})"><i data-lucide="edit-3" style="width:14px"></i></button>
+                                    <div class="qty-stepper">
+                                        <button onclick="adjust(${mod.id},'${i.name}',-1)">-</button>
+                                        <b style="color:${low ? 'var(--rose)' : 'var(--emerald)'}; min-width:20px; text-align:center">${i.qty}</b>
+                                        <button onclick="adjust(${mod.id},'${i.name}',1)">+</button>
+                                    </div>
+                                    <button class="icon-btn" onclick="remove('i',${i.id})"><i data-lucide="trash-2" style="width:14px; color:var(--rose)"></i></button>
+                                ` : `<b style="color:${low ? 'var(--rose)' : 'var(--emerald)'}">${i.qty}</b>`}
+                            </div>
+                        </div>`;
+                }).join("");
+
+                return `
+                    <div class="inventory-card">
+                        <div class="card-head">
+                            <h4 style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:8px;">${mod.name}</h4>
+                            ${IS_ADMIN ? `
+                            <div class="action-btns">
+                                <i data-lucide="edit-3" onclick="spawnModelModal(${grp.id}, ${mod.id}, '${mod.name}')" style="width:16px; cursor:pointer"></i>
+                                <i data-lucide="plus-circle" onclick="spawnItemModal(${mod.id})" style="width:16px; cursor:pointer; color:var(--accent)"></i>
+                                <i data-lucide="trash-2" onclick="remove('m',${mod.id})" style="width:16px; cursor:pointer; color:var(--rose)"></i>
+                            </div>` : ""}
+                        </div>
+                        ${itemsHtml || '<p style="padding:15px; text-align:center; font-size:11px; color:var(--muted)">Empty</p>'}
+                    </div>`;
+            }).join("");
+
+            if(modelsHtml || IS_ADMIN) {
+                port.innerHTML += `
+                    <section class="group-block">
+                        <div class="group-header">
+                            <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+                                <h2 style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${grp.name}</h2>
+                                ${IS_ADMIN ? `<i data-lucide="edit-3" onclick="spawnGroupModal(${grp.id}, '${grp.name}')" style="width:14px; cursor:pointer; color:var(--muted)"></i>` : ""}
+                            </div>
+                            ${IS_ADMIN ? `
+                            <div class="action-btns">
+                                <button onclick="spawnModelModal(${grp.id})" style="background:none; border:none; color:var(--accent); font-weight:800; font-size:11px; cursor:pointer">+ ADD CAR</button>
+                                <i data-lucide="trash-2" onclick="remove('g',${grp.id})" style="width:14px; color:var(--rose); cursor:pointer"></i>
+                            </div>` : ""}
+                        </div>
+                        <div class="responsive-grid">${modelsHtml}</div>
+                    </section>`;
+            }
+        });
+        lucide.createIcons();
+    }
+    document.addEventListener('DOMContentLoaded', fetchData);
+</script>
+</body>
+  </html>
+  
