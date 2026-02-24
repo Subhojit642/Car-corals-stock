@@ -286,16 +286,23 @@
         rebuildUI();
     }
 
-    function rebuildUI() {
+        function rebuildUI() {
         const port = document.getElementById('view-port');
         const search = document.getElementById('main-search').value.toLowerCase();
         const filter = document.getElementById('main-filter').value;
         port.innerHTML = "";
 
         DATA.filter(g => filter === "All" || g.id == filter).forEach(grp => {
-            let modelsHtml = grp.models.map(mod => {
+            // Sort models alphabetically by name before rendering
+            const sortedModels = [...grp.models].sort((a, b) => a.name.localeCompare(b.name));
+
+            let modelsHtml = sortedModels.map(mod => {
                 if(search && !mod.name.toLowerCase().includes(search)) return "";
-                let itemsHtml = mod.items.map(i => {
+                
+                // Sort individual items alphabetically by name within each model
+                const sortedItems = [...mod.items].sort((a, b) => a.name.localeCompare(b.name));
+
+                let itemsHtml = sortedItems.map(i => {
                     const low = i.qty <= i.min;
                     return `
                         <div class="item-row">
@@ -348,7 +355,8 @@
             }
         });
         lucide.createIcons();
-    }
+        }
+    
     document.addEventListener('DOMContentLoaded', fetchData);
 </script>
 </body>
