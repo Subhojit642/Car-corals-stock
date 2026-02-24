@@ -1,21 +1,21 @@
+import os
 from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import os
 
 app = Flask(__name__)
 
-# --- DATABASE CONFIGURATION ---
-# Get the URL from Render's environment variable, or use local SQLite for testing
-db_url = os.environ.get('DATABASE_URL', 'sqlite:///inventory.db')
+# 1. Get the URL from Render environment variables
+db_url = os.environ.get('DATABASE_URL')
 
-# Fix for Render: SQLAlchemy requires "postgresql://" instead of "postgres://"
-if db_url.startswith("postgres://"):
+# 2. Fix the prefix: SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
+if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+# 3. Fallback to local SQLite if DATABASE_URL isn't set (for local testing)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///inventory.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
 
 # --- DATABASE MODELS ---
 
