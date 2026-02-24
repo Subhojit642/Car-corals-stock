@@ -4,19 +4,18 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Fetch the DATABASE_URL environment variable from Render
+# Fetch the URL from Render's environment variables
 db_url = os.environ.get('DATABASE_URL')
 
-# Fix: SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
+# FIX: SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Configure the URI, falling back to local SQLite for testing if needed
+# Configure the URI, with a fallback to local SQLite for your development
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///inventory.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
 
 # --- DATABASE MODELS ---
 
