@@ -5,13 +5,15 @@ import os
 
 app = Flask(__name__)
 
-database_url = os.environ.get("DATABASE_URL")
+# --- DATABASE CONFIGURATION ---
+# Get the URL from Render's environment variable, or use local SQLite for testing
+db_url = os.environ.get('DATABASE_URL', 'sqlite:///inventory.db')
 
-if database_url and database_url.startswith("postgres://"):
-    database_url = database_url.replace("postgres://", "postgresql://", 1)
+# Fix for Render: SQLAlchemy requires "postgresql://" instead of "postgres://"
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -78,7 +80,6 @@ def add_model():
 @app.route('/api/item', methods=['POST'])
 def add_item():
     data = request.json
-    # Logic for update or create
     if 'id' in data and data['id']:
         item = Item.query.get(data['id'])
         item.name = data['name']
@@ -94,18 +95,25 @@ def add_item():
 def adjust_item():
     data = request.json
     item = Item.query.filter_by(name=data['name'], model_id=data['mid']).first()
-    item.qty = max(0, item.qty + data['adj'])
-    db.session.commit()
+    if item:
+        item.qty = max(0, item.qty + data['adj'])
+        db.session.commit()
     return jsonify({'status': 'success'})
 
 @app.route('/api/delete/<type>/<id>', methods=['DELETE'])
 def delete_entry(type, id):
+    target = None
     if type == 'g': target = Group.query.get(id)
-    if type == 'm': target = VehicleModel.query.get(id)
-    if type == 'i': target = Item.query.get(id)
-    db.session.delete(target)
-    db.session.commit()
+    elif type == 'm': target = VehicleModel.query.get(id)
+    elif type == 'i': target = Item.query.get(id)
+    
+    if target:
+        db.session.delete(target)
+        db.session.commit()
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Use PORT from environment for Render
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
+    
