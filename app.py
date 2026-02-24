@@ -1,20 +1,21 @@
-import os
-from flask import Flask
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+import os
 
 app = Flask(__name__)
 
-# Fetch the URL from Render's environment variables
+# --- DATABASE CONFIGURATION ---
+# Get the URL from Render's environment variables
 db_url = os.environ.get('DATABASE_URL')
 
-# FIX: SQLAlchemy 1.4+ requires "postgresql://" instead of "postgres://"
+# FIX: Render provides "postgres://", but SQLAlchemy 1.4+ requires "postgresql://"
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 
-# Configure the URI, with a fallback to local SQLite for your development
+# Fallback to local SQLite if DATABASE_URL is not set
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///inventory.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
 db = SQLAlchemy(app)
 
 # --- DATABASE MODELS ---
@@ -113,7 +114,7 @@ def delete_entry(type, id):
     return jsonify({'status': 'success'})
 
 if __name__ == '__main__':
-    # Use PORT from environment for Render
+    # Required for Render to bind to the correct port
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
     
